@@ -16,5 +16,6 @@ Thumbs.db
 .idea/
 
 # Qdrant & Runtime data
-data/repositories/
+data/
+backend/data/
 *.log

@@ -33,29 +33,30 @@ const navItems = [
 
 export const Sidebar: React.FC = () => {
   const { repository } = useRepository();
+  const healthScore = repository?.codebase_health.overall || 84;
 
   return (
-    <aside className="w-60 h-screen bg-dark-900 border-r border-dark-800 flex flex-col justify-between select-none shrink-0 z-30">
+    <aside className="w-60 h-screen bg-theme-subtle border-r border-theme-border flex flex-col justify-between select-none shrink-0 z-30 transition-colors font-sans">
       {/* Brand Header */}
       <div>
-        <div className="h-14 px-5 border-b border-dark-800 flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400 font-mono font-bold text-sm shadow-sm">
+        <div className="h-14 px-5 border-b border-theme-border flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-[8px] bg-theme-accent/10 border border-theme-accent/20 flex items-center justify-center text-theme-accent shadow-xs">
             <Layers className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-white tracking-tight text-sm">RepoMind</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded bg-dark-800 text-brand-400 font-mono font-medium border border-dark-700">
+              <span className="font-serif font-medium text-theme-primary tracking-tight text-base">RepoMind</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-theme-surface text-theme-muted font-sans font-medium border border-theme-border">
                 v1.0
               </span>
             </div>
-            <p className="text-[10px] text-dark-400 tracking-tight">Codebase Intelligence</p>
+            <p className="text-[10px] text-theme-muted tracking-tight font-sans">Codebase Intelligence</p>
           </div>
         </div>
 
         {/* Navigation Links */}
         <nav className="p-3 space-y-0.5">
-          <div className="px-2 py-1.5 text-[10px] font-mono font-semibold text-dark-500 uppercase tracking-wider">
+          <div className="px-3 py-1.5 text-[11px] font-sans font-semibold text-theme-muted uppercase tracking-[0.06em]">
             Repository Intelligence
           </div>
           {navItems.map((item) => {
@@ -65,10 +66,10 @@ export const Sidebar: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                  `flex items-center gap-2.5 px-3 py-2 rounded-[10px] text-[13.5px] transition-colors duration-150 ${
                     isActive
-                      ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20 font-semibold'
-                      : 'text-dark-300 hover:text-white hover:bg-dark-850 border border-transparent'
+                      ? 'bg-theme-accent/10 text-[#144931] dark:text-theme-accent font-medium'
+                      : 'text-theme-secondary hover:text-theme-primary hover:bg-theme-subtle'
                   }`
                 }
               >
@@ -81,22 +82,25 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Footer Details */}
-      <div className="p-3 border-t border-dark-800 space-y-2">
+      <div className="p-3 border-t border-theme-border space-y-2">
         {/* Health Quick Widget */}
         <NavLink
           to="/health"
-          className="block p-2.5 rounded-lg bg-dark-850 hover:bg-dark-800 border border-dark-750 transition-colors"
+          className="block p-3 rounded-card bg-theme-surface hover:bg-theme-subtle border border-theme-border shadow-subtle transition-colors group"
         >
-          <div className="flex items-center justify-between text-xs mb-1">
-            <span className="text-dark-400 font-mono text-[11px]">Health Score</span>
-            <span className="font-semibold font-mono text-emerald-400">
-              {repository?.codebase_health.overall || 84}/100
+          <div className="flex items-center justify-between text-xs mb-1.5">
+            <span className="text-theme-muted font-sans text-[11px] font-medium uppercase tracking-[0.04em]">Health Score</span>
+            <span className="font-serif font-medium text-theme-success text-sm">
+              {healthScore}/100
             </span>
           </div>
-          <div className="h-1.5 w-full bg-dark-800 rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-theme-track rounded-full overflow-hidden block relative">
             <div
-              className="h-full bg-emerald-400 rounded-full"
-              style={{ width: `${repository?.codebase_health.overall || 84}%` }}
+              className="h-full bg-theme-success rounded-full transition-all duration-600"
+              style={{
+                width: `${healthScore}%`,
+                minWidth: healthScore > 0 ? '4px' : '0px',
+              }}
             ></div>
           </div>
         </NavLink>
@@ -105,10 +109,10 @@ export const Sidebar: React.FC = () => {
         <NavLink
           to="/settings"
           className={({ isActive }) =>
-            `flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+            `flex items-center gap-2.5 px-3 py-2 rounded-[10px] text-[13px] transition-colors duration-150 ${
               isActive
-                ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20'
-                : 'text-dark-400 hover:text-white hover:bg-dark-850'
+                ? 'bg-theme-accent/10 text-[#144931] dark:text-theme-accent font-medium'
+                : 'text-theme-secondary hover:text-theme-primary hover:bg-theme-subtle'
             }`
           }
         >

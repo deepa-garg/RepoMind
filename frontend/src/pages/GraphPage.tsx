@@ -29,15 +29,15 @@ export const GraphPage: React.FC = () => {
 
   if (loading || !graphData) {
     return (
-      <div className="h-full flex items-center justify-center p-8 text-xs font-mono text-dark-400">
-        <Sparkles className="w-4 h-4 text-brand-400 animate-spin mr-2" />
-        <span>Building NetworkX architectural dependency graph...</span>
+      <div className="h-full flex items-center justify-center p-8 text-xs font-sans text-theme-muted">
+        <Sparkles className="w-4 h-4 text-theme-accent animate-spin mr-2" />
+        <span>Building architectural dependency graph...</span>
       </div>
     );
   }
 
   return (
-    <div className="h-full w-full flex flex-col bg-dark-950 overflow-hidden">
+    <div className="h-full w-full flex flex-col bg-theme-bg overflow-hidden">
       <DependencyGraphCanvas data={graphData} />
     </div>
   );

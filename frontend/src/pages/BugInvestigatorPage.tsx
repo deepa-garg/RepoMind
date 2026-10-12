@@ -57,39 +57,39 @@ export const BugInvestigatorPage: React.FC = () => {
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6 font-sans animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-          <Bug className="w-5 h-5 text-rose-400" />
+        <h1 className="text-2xl font-serif font-medium text-theme-primary tracking-tight flex items-center gap-2.5">
+          <Bug className="w-5 h-5 text-theme-danger" />
           <span>Bug Investigator & Root Cause Localization</span>
         </h1>
-        <p className="text-xs text-dark-400 mt-1">
+        <p className="text-sm text-theme-secondary mt-1">
           Analyzes natural language defect descriptions against AST symbols and dependency call graphs.
         </p>
       </div>
 
-      <div className="p-5 rounded-2xl bg-dark-900 border border-dark-800 space-y-3 shadow-xl">
-        <label className="block text-xs font-mono font-medium text-dark-300">
+      <div className="p-6 rounded-card bg-theme-surface border border-theme-border space-y-3.5 shadow-card">
+        <label className="block text-[13px] font-sans font-medium text-theme-primary">
           Describe Bug or Unexpected Behavior
         </label>
-        <div className="flex gap-2">
+        <div className="flex gap-2.5">
           <input
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && runInvestigation(description)}
             placeholder="e.g. Users are getting logged out after refreshing the page"
-            className="flex-1 px-3.5 py-2.5 bg-dark-950 border border-dark-750 rounded-xl text-xs text-white placeholder-dark-500 focus:outline-none focus:border-brand-500 font-sans shadow-inner"
+            className="flex-1 px-4 py-2.5 bg-theme-surface border border-theme-border rounded-[10px] text-sm text-theme-primary placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-2 focus:ring-theme-accent/40 font-sans transition-all"
           />
           <button
             onClick={() => runInvestigation(description)}
             disabled={loading}
-            className="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-xs font-medium text-white transition-colors"
+            className="px-5 py-2.5 rounded-[10px] bg-theme-accent hover:bg-theme-accent-hover disabled:opacity-50 text-xs font-medium text-white transition-all shadow-sm border-0"
           >
             {loading ? 'Diagnosing...' : 'Investigate'}
           </button>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 pt-1">
-          <span className="text-[11px] font-mono text-dark-500">Known Defects:</span>
+          <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.06em] text-theme-muted">Known Defects:</span>
           {PRESET_DEFECTS.map((defect) => (
             <button
               key={defect}
@@ -97,7 +97,7 @@ export const BugInvestigatorPage: React.FC = () => {
                 setDescription(defect);
                 runInvestigation(defect);
               }}
-              className="px-2 py-0.5 rounded bg-dark-850 hover:bg-dark-800 border border-dark-750 text-[11px] text-dark-300 hover:text-white transition-colors truncate max-w-xs"
+              className="px-2.5 py-1 rounded-full bg-theme-surface hover:bg-theme-subtle border border-theme-border text-xs text-theme-primary transition-colors truncate max-w-xs"
             >
               {defect}
             </button>
@@ -107,74 +107,74 @@ export const BugInvestigatorPage: React.FC = () => {
 
       {result && (
         <div className="space-y-6">
-          <div className="p-5 rounded-xl bg-dark-900 border border-dark-800 flex items-start gap-4 shadow-lg">
-            <div className="p-2.5 rounded-lg bg-rose-500/10 text-rose-400 shrink-0">
+          <div className="p-5 rounded-card bg-theme-surface border border-theme-border flex items-start gap-4 shadow-card">
+            <div className="p-2.5 rounded-[10px] bg-theme-danger/10 text-theme-danger shrink-0">
               <AlertCircle className="w-5 h-5" />
             </div>
             <div className="space-y-1">
-              <div className="text-xs font-mono font-semibold uppercase text-dark-400">
+              <div className="text-[11px] font-sans font-semibold uppercase tracking-[0.06em] text-theme-muted">
                 Primary Root Cause Prediction
               </div>
-              <div className="text-sm font-bold text-white font-mono">
+              <div className="text-sm font-semibold text-theme-primary font-mono">
                 {result.root_cause_prediction}
               </div>
-              <p className="text-xs text-dark-300 leading-relaxed pt-1">{result.summary}</p>
+              <p className="text-sm text-theme-secondary leading-relaxed pt-1">{result.summary}</p>
             </div>
           </div>
 
           <div className="space-y-4">
-            <div className="text-xs font-mono uppercase text-dark-400 font-semibold tracking-wider">
+            <div className="text-[11px] font-sans uppercase text-theme-muted font-semibold tracking-[0.06em]">
               Ranked Fault Hypotheses ({result.hypotheses.length})
             </div>
 
             {result.hypotheses.map((hyp: BugHypothesis, idx: number) => (
               <div
                 key={idx}
-                className="p-5 rounded-xl bg-dark-900 border border-dark-800 space-y-4 shadow-md"
+                className="p-5 rounded-card bg-theme-surface border border-theme-border space-y-4 shadow-card"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <span
-                      className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
+                      className={`text-[10px] font-sans font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
                         hyp.confidence === 'High'
-                          ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20'
-                          : 'bg-amber-500/15 text-amber-400 border border-amber-500/20'
+                          ? 'bg-theme-danger/10 text-theme-danger border border-theme-danger/20'
+                          : 'bg-theme-warning/10 text-theme-warning border border-theme-warning/20'
                       }`}
                     >
                       {hyp.confidence} Confidence ({Math.round(hyp.score * 100)}%)
                     </span>
-                    <span className="text-xs font-bold font-mono text-white">
+                    <span className="text-sm font-semibold font-mono text-theme-primary">
                       {hyp.symbol_name}()
                     </span>
                   </div>
 
                   <button
                     onClick={() => handleJumpToCode(hyp.file_path, hyp.line_start)}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-dark-850 hover:bg-dark-800 border border-dark-750 text-xs text-brand-300 font-mono transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-[10px] bg-theme-surface hover:bg-theme-subtle border border-theme-border text-xs text-theme-accent font-sans font-medium transition-all"
                   >
                     <span>View at Line {hyp.line_start}</span>
                     <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs font-mono text-dark-400">
-                  <FileCode className="w-3.5 h-3.5 text-dark-500" />
-                  <span>{hyp.file_path}</span>
+                <div className="flex items-center gap-2 text-xs font-mono text-theme-muted">
+                  <FileCode className="w-3.5 h-3.5" />
+                  <span className="text-theme-primary">{hyp.file_path}</span>
                   <span>•</span>
                   <span>Lines {hyp.line_start}–{hyp.line_end}</span>
                 </div>
 
-                <div className="text-xs text-dark-200 leading-relaxed font-sans bg-dark-950 p-3 rounded-lg border border-dark-800">
-                  <strong className="text-white block font-mono text-[11px] mb-1">Architectural Reasoning:</strong>
+                <div className="text-xs text-theme-secondary leading-relaxed font-sans bg-theme-subtle p-3.5 rounded-[10px] border border-theme-border">
+                  <strong className="text-theme-primary block font-sans text-xs font-medium mb-1">Architectural Reasoning:</strong>
                   {hyp.reasoning}
                 </div>
 
                 <div className="space-y-1.5">
-                  <div className="text-[11px] font-mono text-emerald-400 flex items-center gap-1.5 font-semibold">
+                  <div className="text-[11px] font-sans text-theme-success flex items-center gap-1.5 font-semibold uppercase tracking-[0.06em]">
                     <Wrench className="w-3.5 h-3.5" />
                     <span>Suggested Remediation Patch:</span>
                   </div>
-                  <pre className="p-3 rounded-lg bg-dark-950 border border-dark-800 text-[11px] font-mono text-emerald-300 overflow-x-auto leading-relaxed">
+                  <pre className="p-3.5 rounded-[10px] bg-theme-subtle border border-theme-border text-xs font-mono text-theme-success overflow-x-auto leading-relaxed">
                     {hyp.suggested_fix}
                   </pre>
                 </div>

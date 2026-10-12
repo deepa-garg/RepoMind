@@ -1,0 +1,408 @@
+{
+  "benchmark_metadata": {
+    "dataset_version": "v1.0",
+    "total_questions": 25,
+    "model": "sentence-transformers/all-MiniLM-L6-v2",
+    "embedding_dimension": 384,
+    "rrf_k": 60,
+    "evaluation_date": "2026-10-11 19:05:22 UTC",
+    "repositories": [
+      {
+        "id": "demo-ecommerce",
+        "url": "https://github.com/repomind/ecommerce-platform",
+        "commit": "demo-sha-9f82d1"
+      },
+      {
+        "id": "repo-018170192cf7",
+        "url": "https://github.com/deepa-garg/ai-resume-analyzer",
+        "commit": "4ad11106847b"
+      }
+    ]
+  },
+  "retrieval_comparison": {
+    "keyword": {
+      "recall_at_5": 1.0,
+      "mrr": 0.9205,
+      "answerable_evaluated": 22
+    },
+    "semantic": {
+      "recall_at_5": 1.0,
+      "mrr": 0.9242,
+      "answerable_evaluated": 22
+    },
+    "hybrid": {
+      "recall_at_5": 1.0,
+      "mrr": 0.9015,
+      "answerable_evaluated": 22
+    }
+  },
+  "rag_metrics": {
+    "total_citations_evaluated": 100,
+    "valid_citations": 100,
+    "citation_accuracy": 1.0,
+    "unanswerable_questions_evaluated": 3,
+    "unanswerable_correctly_rejected": 3,
+    "unanswerable_precision": 1.0
+  },
+  "question_results": [
+    {
+      "question_id": "q01",
+      "category": "exact_lookup",
+      "repo_id": "demo-ecommerce",
+      "question": "Where is the generateAccessToken method defined and what is its signature?",
+      "expected_files": [
+        "src/auth/TokenService.ts"
+      ],
+      "retrieved_citations_count": 0,
+      "confidence": 0.0,
+      "evaluation_outcome": "PARTIAL",
+      "failure_reason": "Expected file missing from citations",
+      "answer_preview": "The answer cannot be verified from the indexed repository `demo-ecommerce`.  No matching code declarations, functions, or files relevant to **'Where is the gene..."
+    },
+    {
+      "question_id": "q02",
+      "category": "exact_lookup",
+      "repo_id": "demo-ecommerce",
+      "question": "Where is the calculateShippingCost function implemented and how does it calculate costs?",
+      "expected_files": [
+        "src/services/OrderService.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'Where is the calculateShippingCost function implemented and how does it calculate costs?'**  > *No..."
+    },
+    {
+      "question_id": "q03",
+      "category": "exact_lookup",
+      "repo_id": "repo-018170192cf7",
+      "question": "Where is the CacheManager class implemented in the resume analyzer and what methods does it have?",
+      "expected_files": [
+        "app/app.py"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'Where is the CacheManager class implemented in the resume analyzer and what methods does it have?'..."
+    },
+    {
+      "question_id": "q04",
+      "category": "exact_lookup",
+      "repo_id": "repo-018170192cf7",
+      "question": "Where is analyze_resume_matching defined and how does it score resumes?",
+      "expected_files": [
+        "app/app.py"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'Where is analyze_resume_matching defined and how does it score resumes?'**  > *Note: Operating in ..."
+    },
+    {
+      "question_id": "q05",
+      "category": "exact_lookup",
+      "repo_id": "demo-ecommerce",
+      "question": "Where is the Database singleton class implemented and how is getInstance defined?",
+      "expected_files": [
+        "src/database/Database.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'Where is the Database singleton class implemented and how is getInstance defined?'**  > *Note: Ope..."
+    },
+    {
+      "question_id": "q06",
+      "category": "architecture",
+      "repo_id": "demo-ecommerce",
+      "question": "How does user authentication work from controller to token verification?",
+      "expected_files": [
+        "src/controllers/AuthController.ts",
+        "src/auth/AuthService.ts",
+        "src/auth/TokenService.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'How does user authentication work from controller to token verification?'**  > *Note: Operating in..."
+    },
+    {
+      "question_id": "q07",
+      "category": "architecture",
+      "repo_id": "demo-ecommerce",
+      "question": "How is the order checkout process orchestrated across controllers, services, and payment?",
+      "expected_files": [
+        "src/controllers/OrderController.ts",
+        "src/services/OrderService.ts",
+        "src/services/PaymentGateway.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'How is the order checkout process orchestrated across controllers, services, and payment?'**  > *N..."
+    },
+    {
+      "question_id": "q08",
+      "category": "architecture",
+      "repo_id": "repo-018170192cf7",
+      "question": "What is the caching and redis architecture in the resume analyzer application?",
+      "expected_files": [
+        "app/app.py"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'What is the caching and redis architecture in the resume analyzer application?'**  > *Note: Operat..."
+    },
+    {
+      "question_id": "q09",
+      "category": "natural_language_search",
+      "repo_id": "demo-ecommerce",
+      "question": "Where are user passwords validated or verified during sign in?",
+      "expected_files": [
+        "src/auth/AuthService.ts"
+      ],
+      "retrieved_citations_count": 0,
+      "confidence": 0.0,
+      "evaluation_outcome": "PARTIAL",
+      "failure_reason": "Expected file missing from citations",
+      "answer_preview": "The answer cannot be verified from the indexed repository `demo-ecommerce`.  No matching code declarations, functions, or files relevant to **'Where are user pa..."
+    },
+    {
+      "question_id": "q10",
+      "category": "natural_language_search",
+      "repo_id": "demo-ecommerce",
+      "question": "Where is credit card payment charging handled?",
+      "expected_files": [
+        "src/services/PaymentGateway.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'Where is credit card payment charging handled?'**  > *Note: Operating in local retrieval-only mode..."
+    },
+    {
+      "question_id": "q11",
+      "category": "natural_language_search",
+      "repo_id": "repo-018170192cf7",
+      "question": "How does the API handle file uploads for resumes?",
+      "expected_files": [
+        "app/app.py",
+        "app/tests/test_api.py"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'How does the API handle file uploads for resumes?'**  > *Note: Operating in local retrieval-only m..."
+    },
+    {
+      "question_id": "q12",
+      "category": "natural_language_search",
+      "repo_id": "demo-ecommerce",
+      "question": "Where is request authentication middleware applied to check bearer tokens?",
+      "expected_files": [
+        "src/middleware/AuthMiddleware.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'Where is request authentication middleware applied to check bearer tokens?'**  > *Note: Operating ..."
+    },
+    {
+      "question_id": "q13",
+      "category": "import_dependency_tracing",
+      "repo_id": "demo-ecommerce",
+      "question": "Which service imports and uses TokenService to create JWT tokens?",
+      "expected_files": [
+        "src/auth/AuthService.ts",
+        "src/auth/TokenService.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'Which service imports and uses TokenService to create JWT tokens?'**  > *Note: Operating in local ..."
+    },
+    {
+      "question_id": "q14",
+      "category": "import_dependency_tracing",
+      "repo_id": "demo-ecommerce",
+      "question": "Where is Logger imported and used to log warning or error messages?",
+      "expected_files": [
+        "src/utils/Logger.ts",
+        "src/services/PaymentGateway.ts",
+        "src/auth/AuthService.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'Where is Logger imported and used to log warning or error messages?'**  > *Note: Operating in loca..."
+    },
+    {
+      "question_id": "q15",
+      "category": "import_dependency_tracing",
+      "repo_id": "repo-018170192cf7",
+      "question": "What test modules import and test the Flask app client in ai-resume-analyzer?",
+      "expected_files": [
+        "app/tests/test_api.py",
+        "app/tests/test_app.py"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'What test modules import and test the Flask app client in ai-resume-analyzer?'**  > *Note: Operati..."
+    },
+    {
+      "question_id": "q16",
+      "category": "cross_file_relationships",
+      "repo_id": "demo-ecommerce",
+      "question": "How is Order created in the repository layer when OrderService finishes payment processing?",
+      "expected_files": [
+        "src/services/OrderService.ts",
+        "src/repositories/OrderRepository.ts",
+        "src/models/Order.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'How is Order created in the repository layer when OrderService finishes payment processing?'**  > ..."
+    },
+    {
+      "question_id": "q17",
+      "category": "cross_file_relationships",
+      "repo_id": "demo-ecommerce",
+      "question": "How do UserRepository and UserService interact to fetch and update user profiles?",
+      "expected_files": [
+        "src/services/UserService.ts",
+        "src/repositories/UserRepository.ts",
+        "src/models/User.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'How do UserRepository and UserService interact to fetch and update user profiles?'**  > *Note: Ope..."
+    },
+    {
+      "question_id": "q18",
+      "category": "configuration_error_handling",
+      "repo_id": "demo-ecommerce",
+      "question": "What error is thrown when an invalid or expired token is passed to TokenService?",
+      "expected_files": [
+        "src/auth/TokenService.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'What error is thrown when an invalid or expired token is passed to TokenService?'**  > *Note: Oper..."
+    },
+    {
+      "question_id": "q19",
+      "category": "configuration_error_handling",
+      "repo_id": "repo-018170192cf7",
+      "question": "What HTTP status code is returned when an empty payload is sent to the analyze route?",
+      "expected_files": [
+        "app/tests/test_api.py",
+        "app/app.py"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'What HTTP status code is returned when an empty payload is sent to the analyze route?'**  > *Note:..."
+    },
+    {
+      "question_id": "q20",
+      "category": "configuration_error_handling",
+      "repo_id": "demo-ecommerce",
+      "question": "How does Database.ts handle query execution errors?",
+      "expected_files": [
+        "src/database/Database.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'How does Database.ts handle query execution errors?'**  > *Note: Operating in local retrieval-only..."
+    },
+    {
+      "question_id": "q21",
+      "category": "follow_up",
+      "repo_id": "demo-ecommerce",
+      "question": "How are refresh tokens generated and verified after initial login?",
+      "expected_files": [
+        "src/auth/TokenService.ts",
+        "src/controllers/AuthController.ts"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'How are refresh tokens generated and verified after initial login?'**  > *Note: Operating in local..."
+    },
+    {
+      "question_id": "q22",
+      "category": "follow_up",
+      "repo_id": "repo-018170192cf7",
+      "question": "How does the cache manager check if Redis is currently connected?",
+      "expected_files": [
+        "app/app.py"
+      ],
+      "retrieved_citations_count": 5,
+      "confidence": 0.92,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "### Grounded Architectural Analysis [Retrieval-Only Mode]: **'How does the cache manager check if Redis is currently connected?'**  > *Note: Operating in local ..."
+    },
+    {
+      "question_id": "q23",
+      "category": "unanswerable",
+      "repo_id": "demo-ecommerce",
+      "question": "Where is the Kubernetes Helm deployment chart configured for the database?",
+      "expected_files": [],
+      "retrieved_citations_count": 0,
+      "confidence": 0.0,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "The answer cannot be verified from the indexed repository `demo-ecommerce`.  No matching code declarations, functions, or files relevant to **'Where is the Kube..."
+    },
+    {
+      "question_id": "q24",
+      "category": "unanswerable",
+      "repo_id": "repo-018170192cf7",
+      "question": "Where is Stripe webhook signature verification configured in ai-resume-analyzer?",
+      "expected_files": [],
+      "retrieved_citations_count": 0,
+      "confidence": 0.0,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "The answer cannot be verified from the indexed repository `repo-018170192cf7`.  No matching code declarations, functions, or files relevant to **'Where is Strip..."
+    },
+    {
+      "question_id": "q25",
+      "category": "unanswerable",
+      "repo_id": "demo-ecommerce",
+      "question": "Where is GraphQL Apollo server configured in ecommerce-platform?",
+      "expected_files": [],
+      "retrieved_citations_count": 0,
+      "confidence": 0.0,
+      "evaluation_outcome": "PASS",
+      "failure_reason": null,
+      "answer_preview": "The answer cannot be verified from the indexed repository `demo-ecommerce`.  No matching code declarations, functions, or files relevant to **'Where is GraphQL ..."
+    }
+  ]
+}

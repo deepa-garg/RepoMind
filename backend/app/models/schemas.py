@@ -7,6 +7,7 @@ class RepositoryAnalysisRequest(BaseModel):
     owner: Optional[str] = "repomind"
     branch: Optional[str] = "main"
     is_demo: bool = False
+    force_reindex: bool = False
 
 class AnalysisProgress(BaseModel):
     stage: str
@@ -14,6 +15,8 @@ class AnalysisProgress(BaseModel):
     message: str
     is_complete: bool = False
     repository_id: Optional[str] = None
+    error_code: Optional[str] = None
+    error_detail: Optional[str] = None
 
 class ASTSymbol(BaseModel):
     name: str
@@ -77,6 +80,8 @@ class RepositorySummary(BaseModel):
     name: str
     owner: str
     branch: str
+    commit_sha: Optional[str] = ""
+    repo_url: Optional[str] = None
     description: str
     languages: Dict[str, int]  # e.g. {"TypeScript": 65, "Python": 25, "SQL": 10}
     file_count: int
@@ -87,6 +92,8 @@ class RepositorySummary(BaseModel):
     doc_percentage: int
     codebase_health: HealthScoreBreakdown
     is_demo: bool = False
+    indexing_status: str = "Ready"  # Ready, Indexing, Failed
+    error_message: Optional[str] = None
     analysis_time: str
     tree: Dict[str, Any] = {}
 
@@ -97,6 +104,25 @@ class SearchRequest(BaseModel):
     layer_filter: Optional[str] = "all"
     limit: int = 10
 
+class CodeChunk(BaseModel):
+    chunk_id: str
+    repository_id: str
+    repo_url: Optional[str] = None
+    branch: Optional[str] = None
+    commit_sha: Optional[str] = None
+    file_path: str
+    language: str
+    symbol_name: Optional[str] = None
+    symbol_kind: Optional[str] = None
+    snippet: str
+    line_start: int
+    line_end: int
+    calls: List[str] = []
+    layer: str = "service"
+    index_version: str = "v2.0"
+    embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+    search_text: Optional[str] = None
+
 class SearchResult(BaseModel):
     file_path: str
     symbol_name: str
@@ -106,6 +132,10 @@ class SearchResult(BaseModel):
     line_end: int
     score: float
     explanation: str
+    chunk_id: Optional[str] = None
+    repository_id: Optional[str] = None
+    branch: Optional[str] = None
+    commit_sha: Optional[str] = None
 
 class ChatSourceCitation(BaseModel):
     file_path: str
@@ -114,6 +144,9 @@ class ChatSourceCitation(BaseModel):
     symbol_name: str
     snippet: str
     snippet_type: str = "code"
+    repository_id: Optional[str] = None
+    commit_sha: Optional[str] = None
+    branch: Optional[str] = None
 
 class ChatRequest(BaseModel):
     message: str

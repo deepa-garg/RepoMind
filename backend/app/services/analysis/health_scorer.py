@@ -85,13 +85,14 @@ class HealthScorerService:
             (doc_score * 0.09)
         )
 
+        active_layers = [l.capitalize() for l in layers_count if layers_count[l] > 0]
         explanations = {
-            "maintainability": f"Score {maintainability_score}/100: Clean modular code with low function coupling and readable file sizes.",
-            "documentation": f"Score {doc_score}/100: JSDoc comments cover core domain interfaces, but helper utilities could use expanded docstrings.",
-            "complexity": f"Score {comp_score}/100: Average cyclomatic complexity is {avg_complexity:.1f}. Minimal deeply nested conditionals.",
-            "security": f"Score {security_score}/100: Strong Bearer authorization middleware; flagged dev fallback secrets and raw SQL helper for remediation.",
-            "testability": f"Score {test_score}/100: {test_files} dedicated test suites covering auth, controller, and checkout business logic.",
-            "architecture": f"Score {arch_score}/100: Clean tiered N-tier layout (Presentation → Service → Repository → Database)."
+            "maintainability": f"Score {maintainability_score}/100: Calculated across {total_files} files with {total_symbols} detected symbols.",
+            "documentation": f"Score {doc_score}/100: Approximately {int(doc_ratio * 100)}% of symbols and modules include docstrings or block documentation.",
+            "complexity": f"Score {comp_score}/100: Average cyclomatic complexity is {avg_complexity:.1f} with {high_complexity_count} high-complexity branching functions.",
+            "security": f"Score {security_score}/100: Pattern scan complete. Deductions: {sec_deduction} points for potential unparameterized queries or development secrets.",
+            "testability": f"Score {test_score}/100: {test_files} dedicated test suites found ({int(test_ratio * 100)}% ratio relative to implementation files).",
+            "architecture": f"Score {arch_score}/100: Active architectural layers detected: {', '.join(active_layers) if active_layers else 'Standard'}."
         }
 
         return HealthScoreBreakdown(

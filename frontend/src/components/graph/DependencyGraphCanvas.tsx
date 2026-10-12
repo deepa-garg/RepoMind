@@ -11,7 +11,7 @@ import {
   MarkerType,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Search, Filter, Layers, ArrowUpRight, Shield, Zap, RefreshCw } from 'lucide-react';
+import { Search, Filter, Layers, ArrowUpRight, Zap } from 'lucide-react';
 import { DependencyGraphData, GraphNode as ApiGraphNode } from '../../types';
 import { useNavigate } from 'react-router-dom';
 import { useRepository } from '../../hooks/useRepository';
@@ -20,14 +20,14 @@ interface Props {
   data: DependencyGraphData;
 }
 
-const LAYER_COLORS: Record<string, { bg: string; border: string; text: string; glow: string }> = {
-  presentation: { bg: '#172238', border: '#2563eb', text: '#60a5fa', glow: 'rgba(37,99,235,0.2)' },
-  service: { bg: '#192b33', border: '#0284c7', text: '#38bdf8', glow: 'rgba(2,132,199,0.2)' },
-  repository: { bg: '#1c2e26', border: '#059669', text: '#34d399', glow: 'rgba(5,150,105,0.2)' },
-  database: { bg: '#2b2233', border: '#7c3aed', text: '#a78bfa', glow: 'rgba(124,58,237,0.2)' },
-  model: { bg: '#2e261d', border: '#d97706', text: '#fbbf24', glow: 'rgba(217,119,6,0.2)' },
-  test: { bg: '#2e1c24', border: '#e11d48', text: '#fb7185', glow: 'rgba(225,29,72,0.2)' },
-  utility: { bg: '#1e2430', border: '#475569', text: '#94a3b8', glow: 'rgba(71,85,105,0.2)' },
+const LAYER_COLORS: Record<string, { bg: string; border: string; text: string }> = {
+  presentation: { bg: 'rgba(63, 108, 168, 0.12)', border: '#3F6CA8', text: '#3F6CA8' },
+  service: { bg: 'rgba(27, 94, 63, 0.12)', border: '#1B5E3F', text: '#1B5E3F' },
+  repository: { bg: 'rgba(47, 122, 89, 0.12)', border: '#2F7A59', text: '#2F7A59' },
+  database: { bg: 'rgba(107, 91, 168, 0.12)', border: '#6B5BA8', text: '#6B5BA8' },
+  model: { bg: 'rgba(184, 130, 31, 0.12)', border: '#B8821F', text: '#B8821F' },
+  test: { bg: 'rgba(181, 65, 47, 0.12)', border: '#B5412F', text: '#B5412F' },
+  utility: { bg: 'rgba(61, 60, 57, 0.12)', border: '#3D3C39', text: '#1F1E1D' },
 };
 
 // Custom Node Component
@@ -35,28 +35,26 @@ const CustomArchNode = ({ data, selected }: any) => {
   const layerStyle = LAYER_COLORS[data.layer] || LAYER_COLORS.service;
   return (
     <div
-      className={`px-3 py-2 rounded-lg border transition-all duration-200 cursor-pointer shadow-lg min-w-[150px] ${
-        selected ? 'ring-2 ring-brand-400 scale-105' : 'hover:border-dark-400'
+      className={`px-3.5 py-2.5 rounded-card border bg-theme-surface transition-all duration-200 cursor-pointer shadow-card min-w-[160px] ${
+        selected ? 'ring-2 ring-theme-accent scale-105' : 'hover:border-theme-border'
       }`}
       style={{
-        backgroundColor: layerStyle.bg,
-        borderColor: selected ? '#38bdf8' : layerStyle.border,
-        boxShadow: selected ? `0 0 20px ${layerStyle.glow}` : undefined,
+        borderColor: selected ? 'var(--accent)' : 'var(--border)',
       }}
     >
-      <div className="flex items-center justify-between gap-2 mb-1">
+      <div className="flex items-center justify-between gap-2 mb-1.5">
         <span
-          className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded font-semibold tracking-wider"
-          style={{ backgroundColor: `${layerStyle.border}33`, color: layerStyle.text }}
+          className="text-[9px] font-sans uppercase px-2 py-0.5 rounded-full font-semibold tracking-wider"
+          style={{ backgroundColor: layerStyle.bg, color: layerStyle.text }}
         >
           {data.layer}
         </span>
-        <span className="text-[10px] text-dark-400 font-mono">{data.kind}</span>
+        <span className="text-[10px] text-theme-muted font-sans font-medium">{data.kind}</span>
       </div>
-      <div className="text-xs font-semibold text-white tracking-tight truncate font-mono">
+      <div className="text-xs font-semibold text-theme-primary tracking-tight truncate font-mono">
         {data.label}
       </div>
-      <div className="text-[10px] text-dark-400 truncate mt-0.5">
+      <div className="text-[10px] text-theme-muted truncate mt-0.5 font-mono">
         {data.filePath.split('/').pop()}
       </div>
     </div>
@@ -132,12 +130,12 @@ export const DependencyGraphCanvas: React.FC<Props> = ({ data }) => {
           target: edge.target,
           animated: edge.relationship === 'calls',
           style: {
-            stroke: isSelected ? '#38bdf8' : '#28374f',
+            stroke: isSelected ? 'var(--accent)' : 'var(--border)',
             strokeWidth: isSelected ? 2.5 : 1.5,
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: isSelected ? '#38bdf8' : '#28374f',
+            color: isSelected ? 'var(--accent)' : 'var(--border)',
             width: 14,
             height: 14,
           },
@@ -166,29 +164,29 @@ export const DependencyGraphCanvas: React.FC<Props> = ({ data }) => {
   };
 
   return (
-    <div className="h-full w-full flex flex-col bg-dark-950 relative overflow-hidden">
+    <div className="h-full w-full flex flex-col bg-theme-bg relative overflow-hidden font-sans">
       {/* Top Filter and Controls Bar */}
-      <div className="h-12 px-4 bg-dark-900 border-b border-dark-800 flex items-center justify-between z-10">
+      <div className="h-12 px-5 bg-theme-surface border-b border-theme-border flex items-center justify-between z-10 shrink-0">
         <div className="flex items-center gap-3">
           {/* Node Search */}
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-dark-400 absolute left-2.5 top-2.5" />
+            <Search className="w-3.5 h-3.5 text-theme-muted absolute left-2.5 top-2.5" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Filter nodes..."
-              className="pl-8 pr-3 py-1 bg-dark-850 border border-dark-750 rounded text-xs text-white placeholder-dark-500 focus:outline-none focus:border-brand-500 font-mono w-44"
+              className="pl-8 pr-3 py-1 bg-theme-surface border border-theme-border rounded-[10px] text-xs text-theme-primary placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-2 focus:ring-theme-accent/40 font-sans w-48 transition-all"
             />
           </div>
 
           {/* Layer Selector */}
-          <div className="flex items-center gap-1.5 text-xs text-dark-300">
-            <Filter className="w-3.5 h-3.5 text-dark-400" />
+          <div className="flex items-center gap-1.5 text-xs text-theme-secondary">
+            <Filter className="w-3.5 h-3.5 text-theme-muted" />
             <select
               value={selectedLayer}
               onChange={(e) => setSelectedLayer(e.target.value)}
-              className="bg-dark-850 border border-dark-750 rounded px-2 py-1 text-xs text-dark-200 focus:outline-none focus:border-brand-500 font-mono"
+              className="bg-theme-surface border border-theme-border rounded-[10px] px-2.5 py-1 text-xs text-theme-primary focus:outline-none focus:border-theme-accent font-sans transition-all"
             >
               <option value="all">All Layers</option>
               <option value="presentation">Presentation (Controllers / Middleware)</option>
@@ -201,15 +199,15 @@ export const DependencyGraphCanvas: React.FC<Props> = ({ data }) => {
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 text-xs font-mono text-dark-400">
+        <div className="flex items-center gap-4 text-xs font-sans text-theme-muted">
           <div>
-            Nodes: <span className="text-white font-semibold">{data.nodes.length}</span>
+            Nodes: <span className="text-theme-primary font-semibold font-serif text-sm">{data.nodes.length}</span>
           </div>
           <div>
-            Edges: <span className="text-white font-semibold">{data.edges.length}</span>
+            Edges: <span className="text-theme-primary font-semibold font-serif text-sm">{data.edges.length}</span>
           </div>
           <div className="hidden sm:block">
-            DAG: <span className="text-emerald-400">{data.stats.is_dag ? 'Acyclic' : 'Cyclic'}</span>
+            DAG: <span className="text-theme-success font-medium">{data.stats.is_dag ? 'Acyclic' : 'Cyclic'}</span>
           </div>
         </div>
       </div>
@@ -227,80 +225,80 @@ export const DependencyGraphCanvas: React.FC<Props> = ({ data }) => {
           minZoom={0.2}
           maxZoom={2}
         >
-          <Background color="#151e2e" gap={18} size={1} />
-          <Controls className="bg-dark-900 border border-dark-800 fill-white text-white rounded-lg shadow-xl" />
+          <Background color="var(--border)" gap={20} size={1} />
+          <Controls className="bg-theme-surface border border-theme-border fill-theme-primary text-theme-primary rounded-card shadow-card" />
           <MiniMap
-            className="bg-dark-900 border border-dark-800 rounded-lg overflow-hidden"
+            className="bg-theme-surface border border-theme-border rounded-card shadow-card overflow-hidden"
             nodeColor={(n: any) => {
               const layer = n.data?.layer || 'service';
-              return LAYER_COLORS[layer]?.border || '#38bdf8';
+              return LAYER_COLORS[layer]?.border || '#1B5E3F';
             }}
           />
         </ReactFlow>
 
         {/* Selected Node Details Drawer */}
         {selectedNodeData && (
-          <div className="absolute right-4 top-4 bottom-4 w-80 bg-dark-900 border border-dark-750 rounded-xl shadow-2xl p-4 flex flex-col justify-between z-20 backdrop-blur-md animate-fade-in">
+          <div className="absolute right-4 top-4 bottom-4 w-84 bg-theme-surface border border-theme-border rounded-card shadow-[0_20px_60px_rgba(0,0,0,0.25)] p-5 flex flex-col justify-between z-20 animate-fade-in">
             <div className="space-y-4">
-              <div className="flex items-center justify-between pb-2 border-b border-dark-800">
+              <div className="flex items-center justify-between pb-2.5 border-b border-theme-border">
                 <div className="flex items-center gap-2">
                   <span
-                    className="text-[10px] font-mono uppercase px-2 py-0.5 rounded font-bold"
+                    className="text-[10px] font-sans uppercase px-2 py-0.5 rounded-full font-semibold tracking-wider"
                     style={{
-                      backgroundColor: `${LAYER_COLORS[selectedNodeData.layer]?.border}33`,
+                      backgroundColor: LAYER_COLORS[selectedNodeData.layer]?.bg,
                       color: LAYER_COLORS[selectedNodeData.layer]?.text,
                     }}
                   >
                     {selectedNodeData.layer}
                   </span>
-                  <span className="text-xs text-dark-400 font-mono">{selectedNodeData.kind}</span>
+                  <span className="text-xs text-theme-muted font-sans font-medium">{selectedNodeData.kind}</span>
                 </div>
                 <button
                   onClick={() => setSelectedNodeData(null)}
-                  className="text-dark-400 hover:text-white text-xs"
+                  className="text-theme-muted hover:text-theme-primary text-xs p-1"
                 >
                   ✕
                 </button>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-white font-mono break-all">
+                <h3 className="text-sm font-semibold text-theme-primary font-mono break-all">
                   {selectedNodeData.label}
                 </h3>
-                <p className="text-xs text-dark-400 font-mono mt-1 break-all">
+                <p className="text-xs text-theme-muted font-mono mt-1 break-all">
                   {selectedNodeData.file_path}
                 </p>
               </div>
 
               {/* Metrics */}
-              <div className="p-3 bg-dark-850 rounded-lg border border-dark-750 space-y-1.5 text-xs">
-                <div className="text-[11px] font-mono text-dark-400 font-semibold uppercase tracking-wider">
+              <div className="p-3.5 bg-theme-subtle rounded-card border border-theme-border space-y-2 text-xs">
+                <div className="text-[11px] font-sans text-theme-muted font-semibold uppercase tracking-[0.06em]">
                   AST Metrics
                 </div>
                 {Object.entries(selectedNodeData.metrics).map(([k, v]) => (
                   <div key={k} className="flex items-center justify-between font-mono text-xs">
-                    <span className="text-dark-400 capitalize">{k.replace('_', ' ')}:</span>
-                    <span className="text-white font-semibold">{String(v)}</span>
+                    <span className="text-theme-secondary capitalize">{k.replace('_', ' ')}:</span>
+                    <span className="text-theme-primary font-semibold">{String(v)}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="space-y-2 pt-4 border-t border-dark-800">
+            <div className="space-y-2 pt-4 border-t border-theme-border">
               <button
                 onClick={() =>
                   handleOpenInExplorer(selectedNodeData.file_path, selectedNodeData.line || 1)
                 }
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-dark-800 hover:bg-dark-750 border border-dark-700 text-xs text-white font-medium transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-3.5 py-2 rounded-[10px] bg-theme-surface hover:bg-theme-subtle border border-theme-border text-xs text-theme-primary font-medium transition-all"
               >
-                <ArrowUpRight className="w-3.5 h-3.5 text-brand-400" />
+                <ArrowUpRight className="w-3.5 h-3.5 text-theme-accent" />
                 <span>Open in Monaco Editor</span>
               </button>
 
               <button
                 onClick={() => handleRunImpact(selectedNodeData.label)}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-xs text-white font-medium transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-3.5 py-2 rounded-[10px] bg-theme-accent hover:bg-theme-accent-hover text-xs text-white font-medium transition-all shadow-sm border-0"
               >
                 <Zap className="w-3.5 h-3.5" />
                 <span>Run Impact Analysis</span>

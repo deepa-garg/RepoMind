@@ -31,23 +31,23 @@ const TreeNode: React.FC<{
           }
         }}
         style={{ paddingLeft: `${Math.max(8, level * 14)}px` }}
-        className={`flex items-center gap-1.5 py-1 px-2 rounded cursor-pointer text-xs font-mono select-none transition-colors ${
+        className={`flex items-center gap-1.5 py-1.5 px-2 rounded-[6px] cursor-pointer text-xs font-mono select-none transition-colors ${
           isSelected
-            ? 'bg-brand-500/15 text-brand-300 font-semibold'
-            : 'text-dark-300 hover:text-white hover:bg-dark-850'
+            ? 'bg-theme-accent/10 text-[#144931] dark:text-theme-accent font-semibold'
+            : 'text-theme-secondary hover:text-theme-primary hover:bg-theme-subtle'
         }`}
       >
         {isDirectory ? (
           <>
             {isOpen ? (
-              <ChevronDown className="w-3 h-3 text-dark-500 shrink-0" />
+              <ChevronDown className="w-3 h-3 text-theme-muted shrink-0" />
             ) : (
-              <ChevronRight className="w-3 h-3 text-dark-500 shrink-0" />
+              <ChevronRight className="w-3 h-3 text-theme-muted shrink-0" />
             )}
             {isOpen ? (
-              <FolderOpen className="w-3.5 h-3.5 text-brand-400 shrink-0" />
+              <FolderOpen className="w-3.5 h-3.5 text-theme-accent shrink-0" />
             ) : (
-              <Folder className="w-3.5 h-3.5 text-dark-400 shrink-0" />
+              <Folder className="w-3.5 h-3.5 text-theme-muted shrink-0" />
             )}
             <span className="truncate">{node.name}</span>
           </>
@@ -56,9 +56,9 @@ const TreeNode: React.FC<{
             <span className="w-3 shrink-0" />
             <FileCode
               className={`w-3.5 h-3.5 shrink-0 ${
-                node.name.endsWith('.test.ts') || node.name.endsWith('.spec.ts')
-                  ? 'text-rose-400'
-                  : 'text-dark-400'
+                node.name.endsWith('.test.ts') || node.name.endsWith('.spec.ts') || node.name.endsWith('test_')
+                  ? 'text-theme-success'
+                  : 'text-theme-muted'
               }`}
             />
             <span className="truncate">{node.name}</span>
@@ -85,8 +85,8 @@ const TreeNode: React.FC<{
 
 export const FileTree: React.FC<Props> = ({ tree, selectedFile, onSelectFile }) => {
   return (
-    <div className="h-full w-full overflow-y-auto p-2 space-y-0.5">
-      <div className="px-2 py-1 text-[10px] font-mono font-semibold uppercase text-dark-500 tracking-wider">
+    <div className="h-full w-full overflow-y-auto p-2 space-y-0.5 font-sans">
+      <div className="px-2 py-1 text-[11px] font-sans font-semibold uppercase text-theme-muted tracking-[0.06em]">
         Repository Files
       </div>
       {tree?.children?.map((child: any) => (

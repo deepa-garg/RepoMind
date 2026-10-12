@@ -77,6 +77,8 @@ export interface RepositorySummary {
   name: string;
   owner: string;
   branch: string;
+  commit_sha?: string;
+  repo_url?: string | null;
   description: string;
   languages: Record<string, number>;
   file_count: number;
@@ -87,6 +89,8 @@ export interface RepositorySummary {
   doc_percentage: number;
   codebase_health: HealthScoreBreakdown;
   is_demo: boolean;
+  indexing_status?: string;
+  error_message?: string | null;
   analysis_time: string;
   tree: Record<string, any>;
 }
@@ -97,6 +101,8 @@ export interface AnalysisProgress {
   message: string;
   is_complete: boolean;
   repository_id?: string;
+  error_code?: string | null;
+  error_detail?: string | null;
 }
 
 export interface SearchResult {
@@ -117,6 +123,9 @@ export interface ChatSourceCitation {
   symbol_name: string;
   snippet: string;
   snippet_type: string;
+  repository_id?: string;
+  commit_sha?: string;
+  branch?: string;
 }
 
 export interface ChatResponse {
@@ -126,6 +135,18 @@ export interface ChatResponse {
   confidence: number;
   suggested_actions: string[];
   architecture_context?: string;
+}
+
+export interface HealthCheckResponse {
+  status: 'ok' | 'degraded';
+  service: string;
+  version: string;
+  dependencies: {
+    sqlite: string;
+    qdrant: string;
+    llm_provider: string;
+  };
+  repositories_indexed: number;
 }
 
 export interface BugHypothesis {

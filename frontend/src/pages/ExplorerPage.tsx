@@ -41,15 +41,15 @@ export const ExplorerPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full w-full flex overflow-hidden bg-dark-950 font-sans">
+    <div className="h-full w-full flex overflow-hidden bg-theme-bg font-sans transition-colors">
       {/* Left Panel: File Tree Explorer */}
       {leftOpen && (
-        <div className="w-64 h-full bg-dark-900 border-r border-dark-800 flex flex-col shrink-0">
-          <div className="h-10 px-4 border-b border-dark-800 flex items-center justify-between text-xs font-mono text-dark-300">
-            <span className="font-semibold text-white">Files</span>
+        <div className="w-64 h-full bg-theme-subtle border-r border-theme-border flex flex-col shrink-0">
+          <div className="h-10 px-4 border-b border-theme-border flex items-center justify-between text-xs font-sans text-theme-muted">
+            <span className="font-semibold uppercase tracking-[0.06em] text-[11px]">Files</span>
             <button
               onClick={() => setLeftOpen(false)}
-              className="text-dark-500 hover:text-white p-1"
+              className="text-theme-muted hover:text-theme-primary p-1 rounded-[6px] hover:bg-theme-hover transition-colors"
               title="Collapse Tree"
             >
               <PanelLeftClose className="w-3.5 h-3.5" />
@@ -66,14 +66,14 @@ export const ExplorerPage: React.FC = () => {
       )}
 
       {/* Center Panel: Monaco Code Editor */}
-      <div className="flex-1 h-full flex flex-col min-w-0 bg-dark-950">
+      <div className="flex-1 h-full flex flex-col min-w-0 bg-theme-bg">
         {loadingFile ? (
-          <div className="h-full flex items-center justify-center p-6 text-xs font-mono text-dark-400">
-            <Sparkles className="w-4 h-4 text-brand-400 animate-spin mr-2" />
+          <div className="h-full flex items-center justify-center p-6 text-xs text-theme-muted">
+            <Sparkles className="w-4 h-4 text-theme-accent animate-spin mr-2" />
             <span>Parsing file AST and syntax tokens...</span>
           </div>
         ) : fileData ? (
-          <div className="h-full w-full p-2">
+          <div className="h-full w-full p-2.5">
             <MonacoCodeEditor
               code={fileData.content}
               filePath={fileData.file_path}
@@ -82,20 +82,20 @@ export const ExplorerPage: React.FC = () => {
             />
           </div>
         ) : (
-          <div className="h-full flex items-center justify-center p-6 text-xs font-mono text-dark-500">
-            Select a file from the left repository tree
+          <div className="h-full flex items-center justify-center p-6 text-xs text-theme-muted">
+            Select a file from the repository tree to view code
           </div>
         )}
       </div>
 
       {/* Right Panel: AST Context & AI Actions */}
       {rightOpen && (
-        <div className="w-80 h-full bg-dark-900 border-l border-dark-800 flex flex-col shrink-0">
-          <div className="h-10 px-4 border-b border-dark-800 flex items-center justify-between text-xs font-mono text-dark-300">
-            <span className="font-semibold text-white">AST Symbol Context</span>
+        <div className="w-80 h-full bg-theme-surface border-l border-theme-border flex flex-col shrink-0">
+          <div className="h-10 px-4 border-b border-theme-border flex items-center justify-between text-xs font-sans text-theme-muted">
+            <span className="font-semibold uppercase tracking-[0.06em] text-[11px]">AST Symbol Context</span>
             <button
               onClick={() => setRightOpen(false)}
-              className="text-dark-500 hover:text-white p-1"
+              className="text-theme-muted hover:text-theme-primary p-1 rounded-[6px] hover:bg-theme-hover transition-colors"
               title="Collapse Panel"
             >
               <PanelRightClose className="w-3.5 h-3.5" />

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import { Copy, Check, FileCode } from 'lucide-react';
 
@@ -19,6 +19,20 @@ export const MonacoCodeEditor: React.FC<Props> = ({
 }) => {
   const editorRef = useRef<any>(null);
   const [copied, setCopied] = React.useState(false);
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof document !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   const handleEditorDidMount: OnMount = (editor) => {
     editorRef.current = editor;
@@ -54,14 +68,14 @@ export const MonacoCodeEditor: React.FC<Props> = ({
   };
 
   return (
-    <div className="h-full w-full flex flex-col bg-dark-950 border border-dark-800 rounded-lg overflow-hidden">
+    <div className="h-full w-full flex flex-col bg-theme-surface border border-theme-border rounded-card overflow-hidden shadow-card">
       {/* Editor Top Bar */}
-      <div className="h-9 px-4 bg-dark-900 border-b border-dark-800 flex items-center justify-between text-xs font-mono">
-        <div className="flex items-center gap-2 text-dark-300">
-          <FileCode className="w-3.5 h-3.5 text-brand-400" />
-          <span>{filePath}</span>
+      <div className="h-10 px-4 bg-theme-surface border-b border-theme-border flex items-center justify-between text-xs font-mono">
+        <div className="flex items-center gap-2 text-theme-primary">
+          <FileCode className="w-3.5 h-3.5 text-theme-accent" />
+          <span className="font-medium">{filePath}</span>
           {targetLine && (
-            <span className="px-1.5 py-0.5 rounded bg-brand-500/10 border border-brand-500/20 text-[10px] text-brand-400">
+            <span className="px-2 py-0.5 rounded-full bg-theme-accent/10 border border-theme-accent/20 text-[10px] text-theme-accent font-medium">
               Line {targetLine}
             </span>
           )}
@@ -69,19 +83,19 @@ export const MonacoCodeEditor: React.FC<Props> = ({
 
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 px-2 py-1 rounded bg-dark-800 hover:bg-dark-750 text-dark-300 hover:text-white transition-colors text-[11px]"
+          className="flex items-center gap-1.5 px-3 py-1 rounded-[10px] bg-theme-surface hover:bg-theme-subtle border border-theme-border text-theme-primary transition-colors text-xs font-sans"
         >
-          {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+          {copied ? <Check className="w-3 h-3 text-theme-success" /> : <Copy className="w-3 h-3 text-theme-muted" />}
           <span>{copied ? 'Copied' : 'Copy'}</span>
         </button>
       </div>
 
       {/* Monaco Container */}
-      <div className="flex-1 w-full min-h-0">
+      <div className="flex-1 w-full min-h-0 bg-theme-surface">
         <Editor
           height="100%"
           language={detectLang()}
-          theme="vs-dark"
+          theme={isDark ? 'vs-dark' : 'light'}
           value={code}
           onMount={handleEditorDidMount}
           options={{

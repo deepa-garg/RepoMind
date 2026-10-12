@@ -9,58 +9,122 @@ import {
   SecurityAuditResult,
   HealthScoreBreakdown,
   FileContentResponse,
+  HealthCheckResponse,
 } from '../types';
 
-const API_BASE = '/api';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) || '/api';
+
+export class ApiError extends Error {
+  statusCode: number;
+  errorCode?: string;
+
+  constructor(message: string, statusCode: number, errorCode?: string) {
+    super(message);
+    this.name = 'ApiError';
+    this.statusCode = statusCode;
+    this.errorCode = errorCode;
+  }
+}
+
+async function handleResponse<T>(res: Response, fallbackError: string): Promise<T> {
+  if (!res.ok) {
+    let errorDetail = fallbackError;
+    let errorCode: string | undefined = undefined;
+    try {
+      const data = await res.json();
+      if (data?.detail) {
+        if (typeof data.detail === 'object') {
+          errorDetail = data.detail.message || fallbackError;
+          errorCode = data.detail.error_code;
+        } else if (typeof data.detail === 'string') {
+          errorDetail = data.detail;
+        }
+      }
+    } catch {
+      // Use fallback
+    }
+    throw new ApiError(errorDetail, res.status, errorCode);
+  }
+  return res.json();
+}
 
 export const api = {
-  async getHealth(): Promise<{ status: string }> {
+  async getHealth(): Promise<HealthCheckResponse> {
     const res = await fetch(`${API_BASE}/health`);
-    return res.json();
+    return handleResponse(res, 'Health check failed');
+  },
+
+  async listRepositories(): Promise<RepositorySummary[]> {
+    const res = await fetch(`${API_BASE}/repositories`);
+    return handleResponse(res, 'Failed to fetch repositories list');
+  },
+
+  async resolveRepoId(url: string, branch: string = 'main'): Promise<{ repository_id: string }> {
+    const res = await fetch(`${API_BASE}/repositories/resolve-id?url=${encodeURIComponent(url)}&branch=${encodeURIComponent(branch)}`);
+    return handleResponse(res, 'Failed to resolve repository ID');
   },
 
   async analyzeRepository(payload: {
     repo_url?: string;
     branch?: string;
     is_demo?: boolean;
+    force_reindex?: boolean;
   }): Promise<RepositorySummary> {
     const res = await fetch(`${API_BASE}/repositories/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('Analysis failed');
-    return res.json();
+    return handleResponse(res, 'Repository analysis failed');
+  },
+
+  async uploadZipRepository(file: File): Promise<RepositorySummary> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${API_BASE}/repositories/upload-zip`, {
+      method: 'POST',
+      body: formData,
+    });
+    return handleResponse(res, 'ZIP archive upload and analysis failed');
   },
 
   async getRepository(repoId: string): Promise<RepositorySummary> {
     const res = await fetch(`${API_BASE}/repositories/${repoId}`);
-    if (!res.ok) throw new Error('Failed to fetch repository');
-    return res.json();
+    return handleResponse(res, 'Failed to fetch repository');
+  },
+
+  async deleteRepository(repoId: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/repositories/${repoId}`, {
+      method: 'DELETE',
+    });
+    return handleResponse(res, 'Failed to delete repository');
+  },
+
+  async reindexRepository(repoId: string): Promise<RepositorySummary> {
+    const res = await fetch(`${API_BASE}/repositories/${repoId}/reindex`, {
+      method: 'POST',
+    });
+    return handleResponse(res, 'Failed to reindex repository');
   },
 
   async getProgress(repoId: string): Promise<AnalysisProgress> {
     const res = await fetch(`${API_BASE}/repositories/${repoId}/progress`);
-    if (!res.ok) throw new Error('Failed to fetch progress');
-    return res.json();
+    return handleResponse(res, 'Failed to fetch progress');
   },
 
   async getGraph(repoId: string): Promise<DependencyGraphData> {
     const res = await fetch(`${API_BASE}/repositories/${repoId}/graph`);
-    if (!res.ok) throw new Error('Failed to fetch dependency graph');
-    return res.json();
+    return handleResponse(res, 'Failed to fetch dependency graph');
   },
 
   async getFiles(repoId: string): Promise<{ tree: any; files: string[] }> {
     const res = await fetch(`${API_BASE}/repositories/${repoId}/files`);
-    if (!res.ok) throw new Error('Failed to fetch files');
-    return res.json();
+    return handleResponse(res, 'Failed to fetch files');
   },
 
   async getFileContent(repoId: string, path: string): Promise<FileContentResponse> {
     const res = await fetch(`${API_BASE}/repositories/${repoId}/file-content?path=${encodeURIComponent(path)}`);
-    if (!res.ok) throw new Error(`Failed to load file content for ${path}`);
-    return res.json();
+    return handleResponse(res, `Failed to load file content for ${path}`);
   },
 
   async searchCode(payload: {
@@ -75,8 +139,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('Search failed');
-    return res.json();
+    return handleResponse(res, 'Search failed');
   },
 
   async chat(payload: {
@@ -89,12 +152,14 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('Chat failed');
-    return res.json();
+    return handleResponse(res, 'Chat reasoning failed');
   },
 
-  async clearChat(sessionId: string = 'default'): Promise<void> {
-    await fetch(`${API_BASE}/chat/clear?session_id=${sessionId}`, { method: 'POST' });
+  async clearChat(sessionId: string = 'default', repositoryId?: string): Promise<void> {
+    const url = repositoryId
+      ? `${API_BASE}/chat/clear?session_id=${sessionId}&repository_id=${repositoryId}`
+      : `${API_BASE}/chat/clear?session_id=${sessionId}`;
+    await fetch(url, { method: 'POST' });
   },
 
   async investigateBug(payload: {
@@ -106,8 +171,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('Bug investigation failed');
-    return res.json();
+    return handleResponse(res, 'Bug investigation failed');
   },
 
   async analyzeImpact(payload: {
@@ -120,20 +184,17 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('Impact analysis failed');
-    return res.json();
+    return handleResponse(res, 'Impact analysis failed');
   },
 
   async getSecurityAudit(repoId: string): Promise<SecurityAuditResult> {
     const res = await fetch(`${API_BASE}/repositories/${repoId}/security`);
-    if (!res.ok) throw new Error('Failed to fetch security audit');
-    return res.json();
+    return handleResponse(res, 'Failed to fetch security audit');
   },
 
   async getCodebaseHealth(repoId: string): Promise<HealthScoreBreakdown> {
     const res = await fetch(`${API_BASE}/repositories/${repoId}/health`);
-    if (!res.ok) throw new Error('Failed to fetch codebase health');
-    return res.json();
+    return handleResponse(res, 'Failed to fetch codebase health');
   },
 
   async generateTests(payload: {
@@ -147,8 +208,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('Test generation failed');
-    return res.json();
+    return handleResponse(res, 'Test generation failed');
   },
 
   async generateDocs(payload: {
@@ -161,8 +221,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('Doc generation failed');
-    return res.json();
+    return handleResponse(res, 'Doc generation failed');
   },
 
   async suggestCode(payload: {
@@ -176,7 +235,6 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('Code suggestion failed');
-    return res.json();
+    return handleResponse(res, 'Code suggestion failed');
   },
 };

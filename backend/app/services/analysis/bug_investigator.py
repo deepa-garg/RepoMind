@@ -1,29 +1,35 @@
 """
 Bug Investigator Service for RepoMind.
-Diagnoses issues using semantic retrieval, dependency call chain analysis,
-and AST pattern inspection to formulate probabilistic hypotheses and fixes.
+Diagnoses issues using repository-isolated semantic retrieval, dependency call chain analysis,
+and AST pattern inspection to formulate probabilistic hypotheses and fixes based on real code.
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from app.models.schemas import BugHypothesis, BugAnalysisResult
 from app.services.retrieval.vector_store import VectorStoreService
 from app.services.graph.dependency_graph import DependencyGraphService
+
 
 class BugInvestigatorService:
     def __init__(self, vector_store: VectorStoreService, graph_service: DependencyGraphService):
         self.vector_store = vector_store
         self.graph_service = graph_service
 
-    def investigate(self, description: str, files_data: Dict[str, Dict[str, Any]]) -> BugAnalysisResult:
+    def investigate(
+        self,
+        description: str,
+        files_data: Dict[str, Dict[str, Any]],
+        repository_id: str = "demo-ecommerce",
+        is_demo: bool = False
+    ) -> BugAnalysisResult:
         desc_lower = description.lower()
         hypotheses: List[BugHypothesis] = []
 
-        # 1. First retrieve top candidate code snippets
-        search_hits = self.vector_store.hybrid_search(description, limit=5)
+        # 1. Retrieve top candidate code snippets strictly for this repository
+        search_hits = self.vector_store.hybrid_search(description, repository_id=repository_id, limit=5)
 
-        # 2. Check for known architectural anti-patterns and match context
-        # Scenario A: Refresh / Logout / Token Invalidation
-        if any(w in desc_lower for w in ["logged out", "refresh", "token", "session", "expire", "auth"]):
+        # Demo mode showcase for demo repository
+        if is_demo and repository_id == "demo-ecommerce" and any(w in desc_lower for w in ["logged out", "refresh", "token", "session"]):
             hypotheses.append(BugHypothesis(
                 file_path="src/auth/TokenService.ts",
                 symbol_name="verifyToken",
@@ -42,106 +48,65 @@ const decoded = jwt.verify(token, this.secretKey, {
                 line_end=53
             ))
 
-            hypotheses.append(BugHypothesis(
-                file_path="src/middleware/AuthMiddleware.ts",
-                symbol_name="authenticate",
-                confidence="Medium",
-                score=0.74,
-                reasoning=(
-                    "AuthMiddleware intercepts incoming requests and immediately rejects expired access tokens "
-                    "with 401 instead of catching expired tokens to initiate a transparent session refresh cycle."
-                ),
-                suggested_fix="""// Delegate to token refresh flow if error code indicates token expiration
-if (err.message === 'INVALID_TOKEN' && req.headers['x-refresh-token']) {
-  // Attempt transparent handshake
-}""",
-                line_start=18,
-                line_end=31
-            ))
+        # Ground hypotheses on real search hits and AST symbols in this codebase
+        for hit in search_hits:
+            file_info = files_data.get(hit.file_path, {})
+            matching_sym = next((s for s in file_info.get("symbols", []) if s["name"] == hit.symbol_name), None)
+            comp = matching_sym.get("cyclomatic_complexity", 1) if matching_sym else 1
+            calls = matching_sym.get("calls", []) if matching_sym else []
+
+            # Confidence based on score and cyclomatic complexity
+            confidence = "High" if hit.score > 0.7 or comp > 4 else ("Medium" if hit.score > 0.4 else "Low")
+            
+            reasoning_parts = [
+                f"Symbol '{hit.symbol_name}' in `{hit.file_path}` matches the issue description with score {hit.score:.2f}."
+            ]
+            if comp > 3:
+                reasoning_parts.append(f"It exhibits elevated cyclomatic complexity ({comp}), indicating multiple branching conditions that increase bug probability.")
+            if calls:
+                reasoning_parts.append(f"It interacts with external dependencies: {', '.join(calls[:3])}.")
+
+            # Dynamic suggested fix tailored to the file's language
+            lang = file_info.get("language", "typescript")
+            if lang == "python":
+                suggested_fix = f"# In {hit.file_path}::{hit.symbol_name}:\ntry:\n    # Verify defensive checks for '{hit.symbol_name}'\n    pass\nexcept Exception as e:\n    logger.error(f'Error in {hit.symbol_name}: {{e}}')\n    raise"
+            else:
+                suggested_fix = f"// In {hit.file_path}::{hit.symbol_name}:\ntry {{\n  // Defensive validation and boundary checks for {hit.symbol_name}\n}} catch (error: any) {{\n  console.error(`Error in {hit.symbol_name}:`, error);\n  throw error;\n}}"
 
             hypotheses.append(BugHypothesis(
-                file_path="src/auth/AuthService.ts",
-                symbol_name="validateToken",
-                confidence="Medium",
-                score=0.68,
-                reasoning=(
-                    "validateToken checks both token signature and database isActive flag. "
-                    "If the database connection hiccups during a burst of page requests, "
-                    "it throws an unhandled error cascading into session termination."
-                ),
-                suggested_fix="""// Introduce connection retry fallback with cached user claims
-try {
-  const user = await this.userRepository.findById(payload.userId);
-  return user;
-} catch (dbErr) {
-  Logger.warn('Database fallback lookup during token validation');
-}""",
-                line_start=53,
-                line_end=60
+                file_path=hit.file_path,
+                symbol_name=hit.symbol_name,
+                confidence=confidence,
+                score=hit.score,
+                reasoning=" ".join(reasoning_parts),
+                suggested_fix=suggested_fix,
+                line_start=hit.line_start,
+                line_end=hit.line_end
             ))
 
-        # Scenario B: Payment / Checkout / 401 / Webhook
-        elif any(w in desc_lower for w in ["payment", "charge", "order", "stripe", "checkout", "webhook"]):
-            hypotheses.append(BugHypothesis(
-                file_path="src/services/PaymentGateway.ts",
-                symbol_name="chargeCustomer",
-                confidence="High",
-                score=0.89,
-                reasoning=(
-                    "PaymentGateway uses hardcoded test credentials in development fallback "
-                    "and does not handle idempotency keys across retry payloads. Network timeouts "
-                    "can cause double charges or unhandled rejection errors."
-                ),
-                suggested_fix="""// Add idempotencyKey header in payment gateway request:
-const idempotencyKey = `order_${payload.customerId}_${Date.now()}`;
-// Pass idempotency key to prevent duplicate charge execution""",
-                line_start=26,
-                line_end=42
-            ))
-
-            hypotheses.append(BugHypothesis(
-                file_path="src/services/OrderService.ts",
-                symbol_name="createOrder",
-                confidence="Medium",
-                score=0.76,
-                reasoning=(
-                    "OrderService processes payment charge before persisting order transaction in the database. "
-                    "If the database transaction throws an error post-charge, the customer is billed "
-                    "without an order record being created."
-                ),
-                suggested_fix="""// Wrap in two-phase commit or transactional rollback:
-const orderDraft = await this.orderRepo.createDraft(dto);
-const paymentResult = await this.paymentGateway.chargeCustomer(...);
-if (!paymentResult.success) {
-  await this.orderRepo.markFailed(orderDraft.id);
-}""",
-                line_start=29,
-                line_end=57
-            ))
-
-        # General scenario: fallback to top search hits
-        else:
-            for hit in search_hits[:3]:
-                hypotheses.append(BugHypothesis(
-                    file_path=hit.file_path,
-                    symbol_name=hit.symbol_name,
-                    confidence="Medium" if hit.score > 0.6 else "Low",
-                    score=hit.score,
-                    reasoning=f"Semantic AST correlation indicates {hit.symbol_name} in {hit.file_path} deals with relevant domain logic.",
-                    suggested_fix="// Inspect branch logic and add defensive input verification:\nif (!input) throw new ValidationError();",
-                    line_start=hit.line_start,
-                    line_end=hit.line_end
-                ))
+        if not hypotheses:
+            # Fallback to general file inspect
+            first_path = next(iter(files_data.keys()), "root")
+            return BugAnalysisResult(
+                hypotheses=[],
+                summary=f"No suspicious code locations directly correlated with: '{description}'.",
+                investigation_steps=[
+                    "Check client-side error logs and server request logs",
+                    f"Inspect entrypoint modules in {first_path}",
+                    "Run automated regression test suites"
+                ],
+                root_cause_prediction="Unknown / External to current scanned modules"
+            )
 
         summary = (
-            f"Analyzed {len(hypotheses)} suspicious code locations matching description: '{description}'. "
-            f"The primary root cause hypothesis is centered around {hypotheses[0].file_path}::{hypotheses[0].symbol_name}."
+            f"Analyzed {len(hypotheses)} candidate code location(s) matching issue: '{description}' in repository `{repository_id}`. "
+            f"Primary predicted root cause is focused around `{hypotheses[0].file_path}::{hypotheses[0].symbol_name}`."
         )
 
         steps = [
-            f"Step 1: Inspect call stack from entry point down to {hypotheses[0].file_path}",
-            "Step 2: Check server error logs for exact stack trace frames",
-            "Step 3: Apply defensive patch and run unit tests to verify fix"
+            f"Step 1: Inspect call stack from entry points down to {hypotheses[0].file_path}:{hypotheses[0].line_start}",
+            "Step 2: Check server error logs for exact stack trace frames and input parameters",
+            f"Step 3: Apply defensive patch to {hypotheses[0].symbol_name} and verify with targeted unit tests"
         ]
 
         return BugAnalysisResult(

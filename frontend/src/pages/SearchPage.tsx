@@ -54,26 +54,26 @@ export const SearchPage: React.FC = () => {
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6 font-sans animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-white tracking-tight">Semantic Code Search</h1>
-        <p className="text-xs text-dark-400 mt-1">
-          Combines Qdrant dense vector embeddings with AST symbol exact-match boosting.
+        <h1 className="text-2xl font-serif font-medium text-theme-primary tracking-tight">Semantic Code Search</h1>
+        <p className="text-sm text-theme-secondary mt-1">
+          Combines dense vector embeddings with AST symbol exact-match boosting.
         </p>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="relative flex items-center">
-          <Search className="w-4 h-4 text-dark-400 absolute left-3.5" />
+          <Search className="w-4 h-4 text-theme-muted absolute left-3.5" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             placeholder="Search code using natural language (e.g. 'validate token', 'shipping cost')..."
-            className="w-full pl-10 pr-24 py-3 bg-dark-900 border border-dark-750 rounded-xl text-xs text-white placeholder-dark-500 focus:outline-none focus:border-brand-500 font-mono shadow-inner"
+            className="w-full pl-10 pr-24 py-3 bg-theme-surface border border-theme-border rounded-[10px] text-sm text-theme-primary placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-2 focus:ring-theme-accent/40 font-sans shadow-card transition-all"
           />
           <button
             onClick={() => handleSearch()}
-            className="absolute right-2 px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-xs font-medium text-white transition-colors"
+            className="absolute right-2 px-3.5 py-1.5 rounded-[10px] bg-theme-accent hover:bg-theme-accent-hover text-xs font-medium text-white transition-all shadow-sm border-0"
           >
             Search
           </button>
@@ -81,13 +81,13 @@ export const SearchPage: React.FC = () => {
 
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-dark-400 font-mono text-[11px]">
-              <Filter className="w-3.5 h-3.5" />
-              <span>Kind:</span>
+            <div className="flex items-center gap-1.5 text-theme-secondary text-xs">
+              <Filter className="w-3.5 h-3.5 text-theme-muted" />
+              <span className="font-medium text-theme-primary">Kind:</span>
               <select
                 value={kindFilter}
                 onChange={(e) => setKindFilter(e.target.value)}
-                className="bg-dark-850 border border-dark-750 rounded px-2 py-1 text-xs text-dark-200 focus:outline-none focus:border-brand-500 font-mono"
+                className="bg-theme-surface border border-theme-border rounded-[8px] px-2.5 py-1 text-xs text-theme-primary focus:outline-none focus:border-theme-accent font-sans transition-all"
               >
                 <option value="all">All Symbols</option>
                 <option value="function">Functions</option>
@@ -98,12 +98,12 @@ export const SearchPage: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex items-center gap-1.5 text-dark-400 font-mono text-[11px]">
-              <span>Layer:</span>
+            <div className="flex items-center gap-1.5 text-theme-secondary text-xs">
+              <span className="font-medium text-theme-primary">Layer:</span>
               <select
                 value={layerFilter}
                 onChange={(e) => setLayerFilter(e.target.value)}
-                className="bg-dark-850 border border-dark-750 rounded px-2 py-1 text-xs text-dark-200 focus:outline-none focus:border-brand-500 font-mono"
+                className="bg-theme-surface border border-theme-border rounded-[8px] px-2.5 py-1 text-xs text-theme-primary focus:outline-none focus:border-theme-accent font-sans transition-all"
               >
                 <option value="all">All Layers</option>
                 <option value="presentation">Presentation</option>
@@ -115,8 +115,8 @@ export const SearchPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-1.5 text-[11px] font-mono text-dark-400">
-            <span>Examples:</span>
+          <div className="hidden md:flex items-center gap-1.5 text-xs text-theme-muted">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.06em]">Examples:</span>
             {SAMPLE_SEARCHES.slice(0, 2).map((s) => (
               <button
                 key={s}
@@ -124,7 +124,7 @@ export const SearchPage: React.FC = () => {
                   setQuery(s);
                   handleSearch(s);
                 }}
-                className="px-2 py-0.5 rounded bg-dark-850 hover:bg-dark-800 border border-dark-750 text-dark-300 hover:text-white transition-colors truncate max-w-[200px]"
+                className="px-2.5 py-1 rounded-full bg-theme-surface hover:bg-theme-subtle border border-theme-border text-theme-primary text-xs transition-colors truncate max-w-[220px]"
               >
                 {s}
               </button>
@@ -134,50 +134,50 @@ export const SearchPage: React.FC = () => {
       </div>
 
       <div className="space-y-3 pt-2">
-        <div className="flex items-center justify-between text-xs font-mono text-dark-400">
-          <span>Results: {results.length} matches</span>
-          {loading && <span className="text-brand-400 animate-pulse">Running hybrid retrieval...</span>}
+        <div className="flex items-center justify-between text-xs text-theme-muted">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.06em]">Results: {results.length} matches</span>
+          {loading && <span className="text-theme-accent animate-pulse font-medium">Running hybrid retrieval...</span>}
         </div>
 
         {results.map((res, idx) => (
           <div
             key={idx}
             onClick={() => handleResultClick(res)}
-            className="p-5 rounded-xl bg-dark-900 border border-dark-800 hover:border-brand-500/50 cursor-pointer transition-all space-y-3 shadow-md group"
+            className="p-5 rounded-card bg-theme-surface border border-theme-border hover:border-theme-accent/40 cursor-pointer transition-all space-y-3 shadow-card group"
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="p-1 rounded bg-dark-800 text-brand-400">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-md bg-theme-accent/10 text-theme-accent">
                   <Code2 className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-xs font-bold font-mono text-white group-hover:text-brand-300 transition-colors">
+                <span className="text-sm font-semibold font-mono text-theme-primary group-hover:text-theme-accent transition-colors">
                   {res.symbol_name}
                 </span>
-                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-dark-800 text-dark-400 border border-dark-750">
+                <span className="text-[10px] uppercase font-sans font-semibold tracking-wider px-2 py-0.5 rounded-full bg-theme-subtle text-theme-primary border border-theme-border">
                   {res.symbol_kind}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono text-emerald-400 font-semibold">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs font-sans font-medium text-theme-success bg-theme-success/10 px-2 py-0.5 rounded-full">
                   Score: {res.score.toFixed(2)}
                 </span>
-                <ArrowUpRight className="w-3.5 h-3.5 text-dark-500 group-hover:text-brand-400 transition-colors" />
+                <ArrowUpRight className="w-3.5 h-3.5 text-theme-muted group-hover:text-theme-accent transition-colors" />
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-xs font-mono text-dark-400">
-              <FileCode className="w-3.5 h-3.5 text-dark-500" />
-              <span>{res.file_path}</span>
+            <div className="flex items-center gap-2 text-xs font-mono text-theme-muted">
+              <FileCode className="w-3.5 h-3.5" />
+              <span className="text-theme-primary">{res.file_path}</span>
               <span>•</span>
               <span>Lines {res.line_start}–{res.line_end}</span>
             </div>
 
-            <pre className="p-3 rounded-lg bg-dark-950 border border-dark-800 text-[11px] font-mono text-dark-200 overflow-x-auto leading-relaxed max-h-36">
+            <pre className="p-3.5 rounded-lg bg-theme-subtle border border-theme-border text-xs font-mono text-theme-primary overflow-x-auto leading-relaxed max-h-36">
               {res.snippet}
             </pre>
 
-            <p className="text-[11px] text-dark-400 italic font-mono">{res.explanation}</p>
+            <p className="text-xs text-theme-secondary font-sans leading-relaxed">{res.explanation}</p>
           </div>
         ))}
       </div>

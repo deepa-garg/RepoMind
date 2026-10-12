@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { GitBranch, Search, CheckCircle2, RefreshCw, FolderGit2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { GitBranch, Search, CheckCircle2, RefreshCw, FolderGit2, ChevronDown, Plus, AlertCircle, Check, Sun, Moon } from 'lucide-react';
 import { useRepository } from '../../hooks/useRepository';
 import { OnboardingModal } from './OnboardingModal';
 import { useNavigate } from 'react-router-dom';
@@ -11,78 +11,207 @@ const GithubIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' })
 );
 
 export const Navbar: React.FC = () => {
-  const { repository, analyzing } = useRepository();
+  const { repository, repositories, switchRepository, retryIndexing, analyzing } = useRepository();
   const [modalOpen, setModalOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof document !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggleTheme = () => {
+    const nextDark = !isDark;
+    setIsDark(nextDark);
+    if (nextDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('repomind-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('repomind-theme', 'light');
+    }
+  };
+
+  const isFailed = repository?.indexing_status === 'Failed';
+  const isReady = repository?.indexing_status === 'Ready' || !repository?.indexing_status;
 
   return (
     <>
-      <header className="h-14 border-b border-dark-800 bg-dark-900/90 backdrop-blur-md px-5 flex items-center justify-between z-20 sticky top-0">
-        {/* Left: Current Repository & Branch */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded bg-dark-850 border border-dark-750 text-sm">
-            <FolderGit2 className="w-4 h-4 text-brand-400" />
-            <span className="text-dark-400 font-mono text-xs">{repository?.owner || 'repomind'} /</span>
-            <span className="font-semibold text-white tracking-tight">{repository?.name || 'ecommerce-platform'}</span>
+      <header className="h-14 border-b border-theme-border bg-theme-surface px-5 flex items-center justify-between z-20 sticky top-0 transition-colors font-sans">
+        {/* Left: Current Repository Selector Dropdown & Branch */}
+        <div className="flex items-center gap-2.5">
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen((prev) => !prev)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-theme-surface hover:bg-theme-subtle border border-theme-border text-sm transition-colors text-left"
+              title="Select active repository"
+            >
+              <FolderGit2 className="w-4 h-4 text-theme-accent shrink-0" />
+              <div className="flex items-center gap-1">
+                <span className="text-theme-muted font-mono text-xs">{repository?.owner || 'repomind'} /</span>
+                <span className="font-medium text-theme-primary tracking-tight">{repository?.name || 'ecommerce-platform'}</span>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-theme-muted ml-0.5" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {dropdownOpen && (
+              <div className="absolute left-0 mt-1.5 w-80 rounded-[12px] bg-[#FFFFFF] dark:bg-[#30302E] border border-theme-border shadow-[0_20px_60px_rgba(0,0,0,0.25)] z-50 overflow-hidden animate-fade-in">
+                <div className="px-3.5 py-2.5 border-b border-theme-border text-[11px] font-sans font-semibold uppercase text-theme-muted tracking-wider flex items-center justify-between bg-theme-subtle">
+                  <span>Indexed Repositories ({repositories.length})</span>
+                </div>
+                <div className="max-h-64 overflow-y-auto py-1">
+                  {repositories.map((repo) => {
+                    const isSelected = repo.id === repository?.id;
+                    return (
+                      <button
+                        key={repo.id}
+                        onClick={() => {
+                          switchRepository(repo.id);
+                          setDropdownOpen(false);
+                        }}
+                        className={`w-full px-3.5 py-2.5 text-left text-xs flex items-center justify-between hover:bg-theme-subtle transition-colors ${
+                          isSelected ? 'bg-theme-accent/10 text-theme-accent font-medium' : 'text-theme-secondary'
+                        }`}
+                      >
+                        <div className="truncate pr-2">
+                          <div className="truncate font-medium flex items-center gap-1.5 text-theme-primary">
+                            <span className="text-theme-muted font-mono text-[11px]">{repo.owner}/</span>
+                            <span>{repo.name}</span>
+                          </div>
+                          <div className="text-[10px] text-theme-muted font-mono flex items-center gap-2 mt-0.5">
+                            <span>branch: {repo.branch}</span>
+                            {repo.commit_sha && <span>• {repo.commit_sha.slice(0, 7)}</span>}
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-4 h-4 text-theme-accent shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="p-2 border-t border-theme-border bg-theme-subtle">
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      setModalOpen(true);
+                    }}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-[10px] bg-theme-surface hover:bg-theme-subtle border border-theme-border text-xs font-medium text-theme-accent transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Connect New Repository</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-dark-800/80 border border-dark-700/60 text-xs text-dark-300">
-            <GitBranch className="w-3.5 h-3.5 text-dark-400" />
-            <span className="font-mono">{repository?.branch || 'main'}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-theme-subtle border border-theme-border text-xs text-theme-secondary">
+            <GitBranch className="w-3.5 h-3.5 text-theme-muted" />
+            <span className="font-mono text-[11px] text-theme-primary">{repository?.branch || 'main'}</span>
           </div>
+
+          {repository?.commit_sha && (
+            <div className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-full bg-theme-subtle border border-theme-border text-[11px] font-mono text-theme-muted">
+              <span>SHA:</span>
+              <span className="text-theme-primary font-medium">{repository.commit_sha.slice(0, 7)}</span>
+            </div>
+          )}
 
           {repository?.is_demo && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono tracking-wider font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/30">
-              DEMO REPOSITORY
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-sans font-medium tracking-wide bg-theme-accent/10 text-theme-accent border border-theme-accent/20">
+              Demo Repo
             </span>
           )}
 
-          <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-400 font-mono ml-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>INDEXED</span>
-          </div>
+          {isReady && !repository?.is_demo && (
+            <div className="hidden sm:flex items-center gap-1.5 text-xs text-theme-success font-sans ml-1 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-theme-success"></span>
+              <span className="text-[11px] tracking-wide uppercase">Indexed</span>
+            </div>
+          )}
+
+          {isFailed && (
+            <div className="flex items-center gap-2 ml-1">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-sans font-medium bg-theme-danger/10 text-theme-danger border border-theme-danger/20">
+                <AlertCircle className="w-3 h-3" />
+                <span>Indexing Failed</span>
+              </span>
+              <button
+                onClick={() => repository && retryIndexing(repository.id)}
+                disabled={analyzing}
+                className="px-2.5 py-0.5 rounded-[10px] bg-theme-danger/10 hover:bg-theme-danger/20 border border-theme-danger/30 text-[11px] text-theme-danger font-medium transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Center: Quick Search Trigger */}
         <div className="hidden md:flex items-center flex-1 max-w-md mx-6">
           <button
             onClick={() => navigate('/search')}
-            className="w-full flex items-center justify-between px-3 py-1.5 rounded-md bg-dark-850 border border-dark-750 text-xs text-dark-400 hover:text-dark-200 hover:border-dark-600 transition-colors shadow-inner"
+            className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-[10px] bg-theme-subtle border border-theme-border text-xs text-theme-muted hover:text-theme-primary hover:border-theme-border transition-colors"
           >
             <div className="flex items-center gap-2">
-              <Search className="w-3.5 h-3.5 text-dark-400" />
+              <Search className="w-3.5 h-3.5 text-theme-muted" />
               <span>Search AST symbols, functions, files...</span>
             </div>
-            <kbd className="px-1.5 py-0.5 rounded bg-dark-750 border border-dark-700 text-[10px] text-dark-300 font-mono">
+            <kbd className="px-1.5 py-0.5 rounded-[6px] bg-theme-surface border border-theme-border text-[10px] text-theme-muted font-mono shadow-xs">
               /
             </kbd>
           </button>
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2.5">
+        {/* Right: Actions & Theme Toggle */}
+        <div className="flex items-center gap-2">
+          {/* Light / Dark Mode Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-[10px] bg-theme-surface hover:bg-theme-subtle border border-theme-border text-theme-primary transition-colors"
+            title={isDark ? 'Switch to warm light theme' : 'Switch to soft dark theme'}
+            aria-label="Toggle visual theme"
+          >
+            {isDark ? <Sun className="w-4 h-4 text-theme-warning" /> : <Moon className="w-4 h-4 text-theme-secondary" />}
+          </button>
+
           <button
             onClick={() => setModalOpen(true)}
             disabled={analyzing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-dark-800 hover:bg-dark-750 border border-dark-700 text-xs text-dark-200 font-medium transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-[10px] bg-theme-accent hover:bg-theme-accent-hover text-xs text-white font-medium transition-colors duration-150 shadow-xs border-0"
           >
             {analyzing ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-brand-400" />
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-white" />
             ) : (
-              <CheckCircle2 className="w-3.5 h-3.5 text-brand-400" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-white" />
             )}
             <span>Connect Repo</span>
           </button>
 
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-1.5 rounded text-dark-400 hover:text-white hover:bg-dark-800 transition-colors"
-            title="GitHub Repository"
-          >
-            <GithubIcon className="w-4 h-4" />
-          </a>
+          {repository?.repo_url && (
+            <a
+              href={repository.repo_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-[10px] text-theme-muted hover:text-theme-primary hover:bg-theme-subtle border border-transparent hover:border-theme-border transition-colors"
+              title="Open Repository on GitHub"
+            >
+              <GithubIcon className="w-4 h-4" />
+            </a>
+          )}
         </div>
       </header>
 
@@ -90,5 +219,3 @@ export const Navbar: React.FC = () => {
     </>
   );
 };
-
-
